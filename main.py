@@ -1,5 +1,12 @@
 import torch
 
+# from scipy.stats import spearmanr, kendalltau
+
+# spearmanr(A, B).correlation
+# kendalltau(A, B).correlation
+
+
+
 # Pick the cuda device with the least memory usage
 def pick_most_free_cuda_device():
     if not torch.cuda.is_available():
