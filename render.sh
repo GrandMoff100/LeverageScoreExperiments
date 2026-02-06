@@ -8,7 +8,7 @@ else
 fi
 
 # Render the slides
-manim-slides render -qm -v WARNING presentation.py $slides
+manim-slides render -ql -v WARNING presentation.py $slides
 
 # Convert the slides to HTML
 manim-slides \

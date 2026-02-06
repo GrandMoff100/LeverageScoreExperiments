@@ -2,8 +2,16 @@ from manim import *
 from manim_slides import Slide  # type: ignore
 from datetime import datetime
 
+
+config.background_color = GREEN_A
+Text.set_default(color=BLUE_A)
+Tex.set_default(color=RED_A)
+MathTex.set_default(color=RED_E)
+BulletedList.set_default(color=YELLOW_A)
+
+
 class MySlide(Slide):
-    pass
+    skip_reversing = True
 
 
 class TitleSlide(MySlide):
@@ -36,12 +44,13 @@ class TitleSlide(MySlide):
         self.play(Create(line))
         self.play(FadeIn(subtitle, shift=UP))
         self.play(FadeIn(subsubtitle, shift=UP))
-        self.wait(2)
+        self.next_slide()
 
 
 class IntroSlide(MySlide):
     def construct(self):
         title = Text("Motivation", font_size=48, weight=BOLD).to_edge(UP)
+        line = Line(LEFT * 4, RIGHT * 4).next_to(title, DOWN)
 
         body = BulletedList(
             "Active learning is a powerful technique for reducing labeling costs in machine learning.",
@@ -52,9 +61,11 @@ class IntroSlide(MySlide):
 
         body.next_to(title, DOWN, buff=0.5)
         self.play(Write(title))
+        self.play(Create(line))
+        self.next_slide()
         for item in body:
             self.play(Write(item))
-        self.wait(2)
+            self.next_slide()
 
 
 class Slide1(MySlide):
@@ -77,7 +88,7 @@ class Slide1(MySlide):
         self.play(Create(line))
         self.play(FadeIn(subtitle, shift=UP))
         self.play(Write(formula))
-        self.wait(2)
+        self.next_slide()
 
 if __name__ == "__main__":
     print(*(cls.__name__ for cls in MySlide.__subclasses__()))
