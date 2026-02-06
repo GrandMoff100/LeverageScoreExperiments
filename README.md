@@ -14,4 +14,8 @@ We examine multiple different embeddings of standard image classification datase
 
 1. Title Slide
 2. What is Active Learning? What are leverage scores?
-3. 
+3. Neural Networks as Feature Maps
+4. My big questions
+5. question 1
+6. question 2
+7. 
