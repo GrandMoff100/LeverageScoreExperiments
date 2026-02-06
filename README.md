@@ -13,9 +13,10 @@ We examine multiple different embeddings of standard image classification datase
 ## Slides
 
 1. Title Slide
-2. What is Active Learning? What are leverage scores?
-3. Neural Networks as Feature Maps
-4. My big questions
-5. question 1
-6. question 2
-7. 
+2. What is Active Learning? What is active linear regression? Problem context and setup.
+3. Neural Networks as Feature Maps + my big questions
+5. question 1 - do leverage scores in different basises pick similar digits?
+6. Digits picked, Kendall Tau (what is it?) similarities
+6. question 2 - how useful are leverage scores? Approach to training to networks
+7. Look at performance of top-k subset selection.
+8. Conclusions + Questions
