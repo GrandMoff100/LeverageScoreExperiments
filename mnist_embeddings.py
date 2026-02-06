@@ -3,6 +3,7 @@ import torch.nn as nn
 
 EMBEDDING_DIMENSION = 200
 
+
 class Normalize(nn.Module):
     """Normalize input images using fixed mean and std."""
 

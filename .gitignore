@@ -13,3 +13,7 @@ wheels/
 data/
 
 *.png
+
+media/
+slides/
+*.html

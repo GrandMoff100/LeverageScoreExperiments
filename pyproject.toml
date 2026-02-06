@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "ipykernel>=7.1.0",
+    "manim>=0.19.1",
+    "manim-slides[magic]>=5.5.3",
     "matplotlib>=3.10.8",
     "numpy>=2.4.1",
     "scipy>=1.17.0",
