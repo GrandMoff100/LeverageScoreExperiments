@@ -25,7 +25,7 @@ def pick_most_free_cuda_device():
             max_free_memory = free_memory
             best_device = device_id
 
-    return best_device
+    return f"cuda:{best_device}" if best_device is not None else None
 
 
 if __name__ == "__main__":
@@ -36,4 +36,4 @@ if __name__ == "__main__":
         print(f"  Reserved memory: {torch.cuda.memory_reserved(device) / 1024 ** 2:.2f} MiB")
         print("")
     best_device = pick_most_free_cuda_device()
-    print(f"Device with most free memory: cuda:{best_device}")
+    print(f"Device with most free memory: {best_device}")
