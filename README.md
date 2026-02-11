@@ -20,3 +20,11 @@ We examine multiple different embeddings of standard image classification datase
 6. question 2 - how useful are leverage scores? Approach to training to networks
 7. Look at performance of top-k subset selection.
 8. Conclusions + Questions
+
+
+
+Train on the same architecture, and smaller network.
+
+Do the leverage scores at the end training indicate the most useful data points to train the network in the first place.
+
+Are the leverage scores indicative of important training points?
