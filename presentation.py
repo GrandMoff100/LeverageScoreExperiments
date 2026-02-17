@@ -1,14 +1,23 @@
 from manim import *
-from manim_slides import Slide  # type: ignore
+from manim_slides import Slide, ThreeDSlide  # type: ignore
+
+from manim_ml.neural_network import (
+    Convolutional2DLayer,
+    FeedForwardLayer,
+    NeuralNetwork,
+)
+
 
 from datetime import datetime
 
 from matplotlib.pyplot import title
 
 config.background_color = BLACK  # Set the background color of the slides
-Text.set_default(color=BLUE_C)  # Controls the color of text in Manim's Text objects 
+Text.set_default(color=BLUE_C)  # Controls the color of text in Manim's Text objects
 Tex.set_default(color=BLUE_C)  # Controls the color of text in LaTeX formulas
-MathTex.set_default(color=BLUE_C)  # Affects non-text LaTeX as well, like bullets and formulas
+MathTex.set_default(
+    color=BLUE_C
+)  # Affects non-text LaTeX as well, like bullets and formulas
 BulletedList.set_default(color=BLUE_C)  # Controls the text color of bulleted lists
 
 HEADER_FONT_SIZE = 36
@@ -18,22 +27,41 @@ class MySlide(Slide):
     skip_reversing = True
 
 
+class MyThreeDSlide(ThreeDSlide):
+    skip_reversing = True
+
+
 class MyMovingCameraScene(MovingCameraScene):
     camera: MovingCamera  # type: ignore
+
 
 class TitleSlide(MySlide, MyMovingCameraScene):
     def construct(self):
         title = VGroup(
             VGroup(
-                Text("Assessing", font_size=HEADER_FONT_SIZE, weight=BOLD),
-                Text("Representation Sensitivity", font_size=HEADER_FONT_SIZE, weight=BOLD, color=RED),
+                Text(
+                    "Representation Sensitivity",
+                    font_size=HEADER_FONT_SIZE,
+                    weight=BOLD,
+                    color=RED,
+                ),
+                Text("of", font_size=HEADER_FONT_SIZE, weight=BOLD),
             ).arrange(RIGHT, buff=0.2),
             VGroup(
-                Text("of", font_size=HEADER_FONT_SIZE, weight=BOLD),
-                Text("Leverage Scores", font_size=HEADER_FONT_SIZE, weight=BOLD, color=YELLOW),
+                Text(
+                    "Leverage Scores",
+                    font_size=HEADER_FONT_SIZE,
+                    weight=BOLD,
+                    color=YELLOW,
+                ),
                 Text("in", font_size=HEADER_FONT_SIZE, weight=BOLD),
-                Text("Active Learning", font_size=HEADER_FONT_SIZE, weight=BOLD, color=GREEN),
-            ).arrange(RIGHT, buff=0.2)
+                Text(
+                    "Active Learning",
+                    font_size=HEADER_FONT_SIZE,
+                    weight=BOLD,
+                    color=GREEN,
+                ),
+            ).arrange(RIGHT, buff=0.2),
         ).arrange(DOWN, buff=0.25)
         for m in title[1]:
             m.align_to(title[1][0], UP)
@@ -42,121 +70,123 @@ class TitleSlide(MySlide, MyMovingCameraScene):
 
         self.play(Write(title), run_time=4)
         self.play(Create(line))
-    
+
         confdate = datetime(2026, 2, 28).strftime("%B %-d, %Y")
-        name, _, date, _, event = subtitle = VGroup(
-            Text("Nate Larsen", font_size=18, color=YELLOW_C),
-            Text("|", font_size=18, color=YELLOW_C),
-            Text(confdate, font_size=18, color=YELLOW_C),
-            Text("|", font_size=18, color=YELLOW_C),
-            Text("Student Research Conference", font_size=18, color=YELLOW_C)
-        ).arrange(RIGHT, buff=0.2)
-        subtitle.next_to(title, DOWN, buff=1.5)
+        name = Text("Nate Larsen", font_size=18, color=YELLOW_C)
+        name.next_to(title, DOWN, buff=1.5)
         subsubtitle = Text(
             "Advised by Dr. Kevin Miller",
             font_size=14,
             color=YELLOW_C,
-        ).next_to(subtitle, DOWN)
+        ).next_to(name, DOWN)
 
-        self.play(FadeIn(subtitle, shift=UP))
-        self.play(FadeIn(subsubtitle, shift=UP))
+        self.play(FadeIn(name))
+        self.play(FadeIn(subsubtitle))
         self.next_slide()
 
-        # self.play(Wiggle(title[0][1], scale_value=1.1, rotation_angle=0), run_time=1.5)
-        # self.play(Wiggle(title[1][1], scale_value=1.1, rotation_angle=0), run_time=1.5)
-        # self.play(Wiggle(title[1][3], scale_value=1.1, rotation_angle=0), run_time=1.5)
-
-        # # self.play(Circumscribe(name, color=WHITE), run_time=2)
-        # self.next_slide()
         self.play(self.camera.frame.animate.scale(0.001).shift(DOWN * 0.5), run_time=2)
-        self.next_slide()
 
 
 class IntroSlide(MySlide, MyMovingCameraScene):
     def construct(self):
-        title = Text("What is Active Learning?", font_size=HEADER_FONT_SIZE, weight=BOLD).to_edge(UP)
+        title = Text(
+            "What is Active Learning?",
+            font_size=HEADER_FONT_SIZE,
+            weight=BOLD,
+            t2c={"Active Learning": GREEN},
+        ).to_edge(UP)
         line = Line(LEFT * 3, RIGHT * 3).next_to(title, DOWN)
 
         self.play(Write(title), run_time=1)
         self.play(Create(line))
 
-        self.next_slide()
-
         # Active Learning assumes that labeling data is expensive, and seeks to minimize the number of labeled samples needed to train a model.
         hypothesis = Tex(
-            "We assume that labeling data is expensive",
-            font_size=36,
+            "Often labeling data (making measurements, classifying things, etc.) is expensive",
+            font_size=30,
             color=YELLOW_C,
         ).next_to(line, DOWN)
         implication = Tex(
             "\\textbf{Goal:} Minimize the number of labeled samples needed to train a model",  # We want to find the most informative samples to label, so we can train an accurate model with fewer labeled examples.
-            font_size=36,
+            font_size=30,
             color=YELLOW_C,
         ).next_to(line, DOWN)
         self.play(
             Write(hypothesis),
         )
         self.next_slide()
-        self.play(
-            Transform(hypothesis, implication)
-        )
+        self.play(Transform(hypothesis, implication))
         self.next_slide()
 
-        linear_regression = VGroup(Text("Linear Regression:", font_size=HEADER_FONT_SIZE, weight=BOLD), Tex("$\\hat{y} \\approx X\\beta$"))
+        linear_regression = VGroup(
+            Text(
+                "Active Linear Regression:",
+                font_size=HEADER_FONT_SIZE,
+                weight=BOLD,
+                t2c={"Active": GREEN},
+            ),
+            Tex("$\\hat{y} \\approx X\\beta$"),
+        )
         linear_regression.arrange(RIGHT, buff=0.5)
         linear_regression.to_edge(UP)
-        self.play(Transform(title, linear_regression))
 
-        # Fake "large" data matrix
-        X = Matrix([
-            ["x_{11}", "x_{12}", "\\cdots", "x_{1n}"],
-            ["x_{21}", "x_{22}", "\\cdots", "x_{2n}"],
-            ["x_{31}", "x_{32}", "\\cdots", "x_{3n}"],
-            ["x_{41}", "x_{42}", "\\cdots", "x_{4n}"],
-            ["\\vdots", "\\vdots", "\\ddots", "\\vdots"],
-            ["x_{m1}", "x_{m2}", "\\cdots", "x_{mn}"],
-        ])
-        X_label = Tex("Data Matrix $X$", font_size=24)
-        X_group = VGroup(X, X_label).arrange(DOWN)
-        X_group.to_edge(LEFT, buff=2.5)
-        X_group.shift(DOWN * 0.75)
-        X_group.scale(0.8)
-
-        # Coefficient vector
-        beta = Matrix([
-            ["\\beta_1"],
-            ["\\beta_2"],
-            ["\\vdots"],
-            ["\\beta_n"]
-        ])
-        beta_label = Tex("Coefficients $\\beta$", font_size=24)
-        beta_group = VGroup(beta, beta_label).arrange(DOWN)
-        beta_group.scale(0.8)
-        beta_group.next_to(X_group, RIGHT)
+        # Label vector
+        y = Matrix(
+            [
+                ["y_1"],
+                ["y_2"],
+                ["y_3"],
+                ["y_4"],
+                ["\\vdots"],
+                ["y_m"],
+            ]
+        )
+        y.scale(0.8)
+        y.to_edge(LEFT, buff=3)
+        y.shift(DOWN * 0.5)
+        y_label = Tex("Labels $\\hat{y}$", font_size=24)
+        y_label.scale(0.8)
+        y_label.next_to(y, DOWN, buff=0.25)
 
         # Equal sign
         equal_sign = Tex("$\\approx$", font_size=45)
-        equal_sign.next_to(beta_group, RIGHT, buff=0.25)
+        equal_sign.next_to(y, RIGHT, buff=0.25)
 
-        # Label vector
-        y = Matrix([
-            ["y_1"],
-            ["y_2"],
-            ["y_3"],
-            ["y_4"],
-            ["\\vdots"],
-            ["y_m"],
-        ])
-        y_label = Tex("Labels $y$", font_size=24)
-        y_group = VGroup(y, y_label).arrange(DOWN)
-        y_group.scale(0.8)
-        y_group.next_to(equal_sign, RIGHT, buff=0.25)
+        # Fake "large" data matrix
+        X = Matrix(
+            [
+                ["x_{11}", "x_{12}", "\\cdots", "x_{1n}"],
+                ["x_{21}", "x_{22}", "\\cdots", "x_{2n}"],
+                ["x_{31}", "x_{32}", "\\cdots", "x_{3n}"],
+                ["x_{41}", "x_{42}", "\\cdots", "x_{4n}"],
+                ["\\vdots", "\\vdots", "\\ddots", "\\vdots"],
+                ["x_{m1}", "x_{m2}", "\\cdots", "x_{mn}"],
+            ]
+        )
+        X.scale(0.8)
+        X.next_to(equal_sign, RIGHT, buff=0.25)
+
+        X_label = Tex("Data Matrix $X$", font_size=24)
+        X_label.scale(0.8)
+        X_label.next_to(X, DOWN, buff=0.25)
+
+        # Coefficient vector
+        beta = Matrix([["\\beta_1"], ["\\beta_2"], ["\\vdots"], ["\\beta_n"]])
+        beta_label = Tex("Coefficients $\\beta$", font_size=24)
+        beta.scale(0.8)
+        beta.next_to(X, RIGHT, buff=0.25)
+        beta_label.scale(0.8)
+        beta_label.next_to(beta, DOWN, buff=0.25)
 
         self.play(
-            FadeIn(X_group),
-            FadeIn(beta_group),
+            Transform(title, linear_regression),
+            FadeIn(X),
+            FadeIn(X_label),
+            FadeIn(beta),
+            FadeIn(beta_label),
             FadeIn(equal_sign),
-            FadeIn(y_group)
+            FadeIn(y),
+            FadeIn(y_label),
         )
 
         self.next_slide()
@@ -177,91 +207,194 @@ class IntroSlide(MySlide, MyMovingCameraScene):
             y_box = SurroundingRectangle(y_entry, color=RED, buff=0.1)
             boxes.append(y_box)
 
-        # Highlight all beta entries
-        beta_boxes = [
-            SurroundingRectangle(beta.get_rows()[i], color=BLUE, buff=0.1)
-            for i in [0,1,3]
-        ]
-        boxes.extend(beta_boxes)
-
         self.play(*[Create(b) for b in boxes])
         self.next_slide()
 
-        # # Emphasize mapping
-        # arrows = []
-        # for i in range(4):
-        #     arrow = Arrow(
-        #         X.get_rows()[1][i].get_center(),
-        #         beta.get_rows()[i].get_center(),
-        #         buff=0.1,
-        #         color=GREEN
-        #     )
-        #     arrows.append(arrow)
-
-        # self.play(*[GrowArrow(a) for a in arrows])
-        # self.next_slide()
-
-        # Introduce Leverage Scores
-        question = Tex(
-            "How do we pick which samples we should use in our model?",
-            font_size=28,
-            color=YELLOW_C,
-        ).to_edge(DOWN)
-        self.play(Write(question))
-        self.next_slide()
-
         # Reduce matrix and labels to just highlighted rows
-        reduced_X = Matrix([
-            ["x_{21}", "x_{22}", "\\cdots", "x_{2n}"],
-            ["x_{41}", "x_{42}", "\\cdots", "x_{4n}"],
-        ]).scale(0.8)
-        reduced_X.next_to(X_group, DOWN, buff=1.5)
-        reduced_y = Matrix([
-            ["y_2"],
-            ["y_4"],
-        ]).scale(0.8)
-        reduced_y.next_to(reduced_X, RIGHT, buff=0.25)
+        reduced_X = Matrix(
+            [
+                ["x_{21}", "x_{22}", "\\cdots", "x_{2n}"],
+                ["x_{41}", "x_{42}", "\\cdots", "x_{4n}"],
+            ]
+        ).scale(0.8)
+        reduced_X.move_to(X.get_center())  # Move to the center of the highlighted rows
+        reduced_y = Matrix(
+            [
+                ["y_2"],
+                ["y_4"],
+            ]
+        ).scale(0.8)
+        reduced_y.move_to(
+            y.get_center()
+        )  # Move to the center of the highlighted entries
+
+        # Transform the highlight boxes into the reduced matrices
+        new_highlight_boxes = []
+        for i, r in enumerate(highlight_rows):
+            # Transform X row box
+            new_box = SurroundingRectangle(
+                reduced_X.get_rows()[i], color=YELLOW, buff=0.1
+            )
+            new_highlight_boxes.append(new_box)
+
+            # Transform y entry box
+            new_y_box = SurroundingRectangle(
+                reduced_y.get_rows()[i], color=RED, buff=0.1
+            )
+            new_highlight_boxes.append(new_y_box)
+
         self.play(
             Transform(X, reduced_X),
-            Transform(y, reduced_y)
+            Transform(y, reduced_y),
+            *[
+                Transform(box, new_box)
+                for box, new_box in zip(boxes, new_highlight_boxes)
+                if box in boxes
+            ],
         )
         self.next_slide()
 
         # Clean up
         self.play(
             FadeOut(VGroup(*boxes)),
-            # FadeOut(VGroup(*arrows)),
         )
         self.next_slide()
 
+
+class LeverageScores(MySlide, MyMovingCameraScene):
+    def construct(self):
         # Leverage scores are a common method for selecting informative samples in active learning, but they can be sensitive to changes in the model's representation.
-        # Question 1: How sensitive are leverage scores to changes in the data's representation? (neural network pov)
-        # Question 2: How does this sensitivity impact the performance of active learning algorithms that rely on leverage scores for sample selection?
-        
+        title = Text(
+            "Leverage Scores",
+            font_size=HEADER_FONT_SIZE,
+            weight=BOLD,
+            t2c={"Leverage Scores": YELLOW},
+        ).to_edge(UP)
+        self.play(Write(title), run_time=1)
 
-# class Slide1(MySlide, MyMovingCameraScene):
+        description = Tex(
+            'Leverage scores measure how much ``leverage" each data point has on the fitted model',
+            font_size=28,
+        ).next_to(title, DOWN)
+        self.play(Write(description))
+        self.next_slide()
+
+        # Define Leverage Scores
+        definition = MathTex(
+            "\\text{Leverage Score}(x_i) = x_i^T (X^T X)^{-1} x_i = \\|Q^T e_i\\|^2",
+            font_size=28,
+            color=YELLOW,
+        ).next_to(description, DOWN)
+        self.play(Write(definition))
+        self.next_slide()
+
+        alternate_description = Tex(
+            "Leverage scores also describe how easily data points can be reconstructed by other points in the dataset (minimal norm reconstruction)",
+            font_size=28,
+        ).next_to(definition, DOWN)
+        self.play(Write(alternate_description))
+        alternate_definition = MathTex(
+            "\\text{Leverage Score}(x_i) = \\min_{\\mathbf{c}} \\|\\mathbf{c}\\|^2 \\text{ such that } X^T \\mathbf{c} = x_i^T",
+            font_size=28,
+            color=YELLOW,
+        ).next_to(alternate_description, DOWN)
+        self.play(Write(alternate_definition))
+        self.next_slide()
+
+        # Quick example of leverage scores for a simple dataset
+        X = np.array(
+            [
+                [1, 0],
+                [0, 1],
+                [1, 10],
+            ]
+        )
+        matrix = Matrix(X).scale(0.8).to_edge(LEFT, buff=1)
+        self.play(FadeIn(matrix))
+        self.next_slide()
+
+
+class BigTheme(MyThreeDSlide):
+    def construct(self):
+        # Introduce neural networks as non-linear representations
+
+        ## Do leverage scores remain a reliable measure of sample importance when we change the representation of our data, such as by using a neural network to learn a non-linear embedding?
+        title = Text(
+            "Big Idea",
+            font_size=HEADER_FONT_SIZE,
+            weight=BOLD,
+            t2c={"Big Idea": RED},
+        ).to_edge(UP)
+        self.play(Write(title), run_time=1)
+        self.next_slide()
+
+        # Make the neural network
+        nn = NeuralNetwork(
+            [
+                Convolutional2DLayer(1, 7, 3, filter_spacing=0.32),
+                Convolutional2DLayer(3, 5, 3, filter_spacing=0.32),
+                Convolutional2DLayer(5, 3, 3, filter_spacing=0.18),
+                FeedForwardLayer(3),
+                FeedForwardLayer(3),
+            ],
+            layer_spacing=0.25,
+        )
+        # Center the neural network
+        nn.move_to(ORIGIN)
+        self.add(nn)
+        # Make a forward pass animation
+        forward_pass = nn.make_forward_pass_animation()
+
+
+        # Play animation
+        self.play(forward_pass)
+
+        ## Question 1: How sensitive are leverage scores to changes in the data's representation? (neural network pov)
+
+        ## Do they give us important samples to train on?
+
+        ## Question 2: How does this sensitivity impact the performance of active learning algorithms that rely on leverage scores for sample selection?
+
+        questions = BulletedList(
+            "How sensitive are leverage scores to changes in the data's representation? (neural networks)",
+            "Do they give us important samples to train on?",
+            font_size=24,
+        ).next_to(title, DOWN)
+        for q in questions:
+            self.play(Write(q))
+            self.next_slide()
+
+
+class StepByStep(MySlide):
+    def construct(self):
+        eq = MathTex(r"\begin{align}", r"a &= b + c \\", r"  &= d + e", r"\end{align}")
+
+        self.play(Write(eq[1]))
+        self.wait()
+        self.play(TransformFromCopy(eq[1], eq[2]))
+        self.wait()
+
+
+# class Question1(MySlide, MyMovingCameraScene):
 #     def construct(self):
-#         # Draw some math
-#         title = Text("Problem Statement", font_size=HEADER_FONT_SIZE, weight=BOLD).to_edge(UP)
-#         line = Line(LEFT * 2, RIGHT * 2).next_to(title, DOWN)
-#         subtitle = Text(
-#             "Given a dataset and a model representation, \n how do leverage scores change when \n the representation is altered?",
-#             font_size=24,
-#             color=YELLOW_C,
-#         ).next_to(line, DOWN, buff=0.5)
+#         pass
 
-#         # Draw a math formula
-#         formula = MathTex(
-#             r"\text{Leverage Score}(x) = \|P x\|^2", font_size=36
-#         ).next_to(subtitle, DOWN, buff=0.5)
 
-#         self.play(Write(title), run_time=1)
-#         self.play(Create(line))
-#         self.next_slide()
-#         self.play(FadeIn(subtitle, shift=UP))
-#         self.next_slide()
-#         self.play(Write(formula))
-#         self.next_slide()
+# class Question2(MySlide, MyMovingCameraScene):
+#     def construct(self):
+#         pass
+
+
+# class Conclusion(MySlide, MyMovingCameraScene):
+#     def construct(self):
+#         pass
+
 
 if __name__ == "__main__":
-    print(*(cls.__name__ for cls in MySlide.__subclasses__()))
+    print(
+        "TitleSlide",
+        "IntroSlide",
+        "LeverageScores",
+        "BigTheme",
+        "StepByStep",
+    )

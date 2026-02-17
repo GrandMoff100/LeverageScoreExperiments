@@ -13,18 +13,15 @@ We examine multiple different embeddings of standard image classification datase
 ## Slides
 
 1. Title Slide
-2. What is Active Learning? What is active linear regression? Problem context and setup.
-3. Neural Networks as Feature Maps + my big questions
-5. question 1 - do leverage scores in different basises pick similar digits?
-6. Digits picked, Kendall Tau (what is it?) similarities
-6. question 2 - how useful are leverage scores? Approach to training to networks
-7. Look at performance of top-k subset selection.
-8. Conclusions + Questions
+2. What is Active Learning? What is active linear regression?
+3. Introduce Leverage Scoring technique.
+4. Neural Networks as Feature Maps + my big theme -> How well do leverage scores perform as an importance sampling technique?
+5. question 1 - do leverage scores in different basises pick similar digits? (??????)
+6. question 2 - how useful are leverage scores? Approach to training to networks (Look at performance of top-k subset selection.)
+7. Back to the big question (what do we take away? They aren't useful for finding good training points because they focus on finding outliers) + Questions
 
 
 
-Train on the same architecture, and smaller network.
-
-Do the leverage scores at the end training indicate the most useful data points to train the network in the first place.
-
-Are the leverage scores indicative of important training points?
+Train on the same architecture, and smaller network (LiNet).
+=> Do the leverage scores at the end training indicate the most useful data points to train the network in the first place?
+=> Are the leverage scores indicative of important training points?
