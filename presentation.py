@@ -1,13 +1,6 @@
 from manim import *
 from manim_slides import Slide, ThreeDSlide  # type: ignore
 
-from manim_ml.neural_network import (
-    Convolutional2DLayer,
-    FeedForwardLayer,
-    NeuralNetwork,
-)
-
-
 from datetime import datetime
 
 from matplotlib.pyplot import title
@@ -328,27 +321,6 @@ class BigTheme(MyThreeDSlide):
         self.play(Write(title), run_time=1)
         self.next_slide()
 
-        # Make the neural network
-        nn = NeuralNetwork(
-            [
-                Convolutional2DLayer(1, 7, 3, filter_spacing=0.32),
-                Convolutional2DLayer(3, 5, 3, filter_spacing=0.32),
-                Convolutional2DLayer(5, 3, 3, filter_spacing=0.18),
-                FeedForwardLayer(3),
-                FeedForwardLayer(3),
-            ],
-            layer_spacing=0.25,
-        )
-        # Center the neural network
-        nn.move_to(ORIGIN)
-        self.add(nn)
-        # Make a forward pass animation
-        forward_pass = nn.make_forward_pass_animation()
-
-
-        # Play animation
-        self.play(forward_pass)
-
         ## Question 1: How sensitive are leverage scores to changes in the data's representation? (neural network pov)
 
         ## Do they give us important samples to train on?
@@ -364,30 +336,37 @@ class BigTheme(MyThreeDSlide):
             self.play(Write(q))
             self.next_slide()
 
-
-class StepByStep(MySlide):
+class Question1(MySlide, MyMovingCameraScene):
     def construct(self):
-        eq = MathTex(r"\begin{align}", r"a &= b + c \\", r"  &= d + e", r"\end{align}")
-
-        self.play(Write(eq[1]))
-        self.wait()
-        self.play(TransformFromCopy(eq[1], eq[2]))
-        self.wait()
-
-
-# class Question1(MySlide, MyMovingCameraScene):
-#     def construct(self):
-#         pass
+        title = Text(
+            "Question 1",
+            font_size=HEADER_FONT_SIZE,
+            weight=BOLD,
+            t2c={"Question 1": RED},
+        ).to_edge(UP)
+        self.play(Write(title), run_time=1)
 
 
-# class Question2(MySlide, MyMovingCameraScene):
-#     def construct(self):
-#         pass
+class Question2(MySlide, MyMovingCameraScene):
+    def construct(self):
+        title = Text(
+            "Question 2",
+            font_size=HEADER_FONT_SIZE,
+            weight=BOLD,
+            t2c={"Question 2": RED},
+        ).to_edge(UP)
+        self.play(Write(title), run_time=1)
 
 
-# class Conclusion(MySlide, MyMovingCameraScene):
-#     def construct(self):
-#         pass
+class Conclusion(MySlide, MyMovingCameraScene):
+    def construct(self):
+        title = Text(
+            "Conclusion",
+            font_size=HEADER_FONT_SIZE,
+            weight=BOLD,
+            t2c={"Conclusion": RED},
+        ).to_edge(UP)
+        self.play(Write(title), run_time=1)
 
 
 if __name__ == "__main__":
@@ -396,5 +375,7 @@ if __name__ == "__main__":
         "IntroSlide",
         "LeverageScores",
         "BigTheme",
-        "StepByStep",
+        "Question1",
+        "Question2",
+        "Conclusion",
     )
