@@ -65,7 +65,7 @@ class TitleSlide(MySlide, MyMovingCameraScene):
         self.play(Create(line))
 
         confdate = datetime(2026, 2, 28).strftime("%B %-d, %Y")
-        name = Text("Nate Larsen", font_size=18, color=YELLOW_C)
+        name = Text("Nate Larsen | BYU Student Research Conference", font_size=18, color=YELLOW_C)
         name.next_to(title, DOWN, buff=1.5)
         subsubtitle = Text(
             "Advised by Dr. Kevin Miller",
@@ -77,7 +77,7 @@ class TitleSlide(MySlide, MyMovingCameraScene):
         self.play(FadeIn(subsubtitle))
         self.next_slide()
 
-        self.play(self.camera.frame.animate.scale(0.001).shift(DOWN * 0.5), run_time=2)
+        self.play(self.camera.frame.animate.scale(0.001).shift(DOWN * 0.75), run_time=2)
 
 
 class IntroSlide(MySlide, MyMovingCameraScene):
@@ -254,6 +254,11 @@ class IntroSlide(MySlide, MyMovingCameraScene):
         self.next_slide()
 
 
+def compute_leverage_scores(X):
+    Q, _ = np.linalg.qr(X)
+    return np.sum(Q**2, axis=1)
+
+
 class LeverageScores(MySlide, MyMovingCameraScene):
     def construct(self):
         # Leverage scores are a common method for selecting informative samples in active learning, but they can be sensitive to changes in the model's representation.
@@ -274,7 +279,7 @@ class LeverageScores(MySlide, MyMovingCameraScene):
 
         # Define Leverage Scores
         definition = MathTex(
-            "\\text{Leverage Score}(x_i) = x_i^T (X^T X)^{-1} x_i = \\|Q^T e_i\\|^2",
+            "\\text{Leverage Score}(x_i) = x_i^T (X^T X)^{-1} x_i = \\|Q^T e_i\\|^2 \\quad \\text{(Classic Definition)}",
             font_size=28,
             color=YELLOW,
         ).next_to(description, DOWN)
@@ -282,12 +287,12 @@ class LeverageScores(MySlide, MyMovingCameraScene):
         self.next_slide()
 
         alternate_description = Tex(
-            "Leverage scores also describe how easily data points can be reconstructed by other points in the dataset (minimal norm reconstruction)",
+            "Leverage scores also describe how easily data points can be reconstructed by other points in the dataset! (minimal norm reconstruction)",
             font_size=28,
-        ).next_to(definition, DOWN)
+        ).next_to(definition, DOWN, buff=1)
         self.play(Write(alternate_description))
         alternate_definition = MathTex(
-            "\\text{Leverage Score}(x_i) = \\min_{\\mathbf{c}} \\|\\mathbf{c}\\|^2 \\text{ such that } X^T \\mathbf{c} = x_i^T",
+            "\\text{Leverage Score}(x_i) = \\min_{\\mathbf{c}\\in \\mathbb{R}^n} \\|\\mathbf{c}\\|^2 \\text{ such that } X^T \\mathbf{c} = x_i^T \\quad \\text{(Interpretable Definition)}",
             font_size=28,
             color=YELLOW,
         ).next_to(alternate_description, DOWN)
@@ -302,9 +307,33 @@ class LeverageScores(MySlide, MyMovingCameraScene):
                 [1, 10],
             ]
         )
-        matrix = Matrix(X).scale(0.8).to_edge(LEFT, buff=1)
+        matrix = Matrix(X).scale(0.7).to_edge(DOWN + LEFT, buff=1)
+        arrow = MathTex("\\Longrightarrow").scale(1).next_to(matrix, RIGHT, buff=0.5)
+        arrow_label = Tex("Leverage Scores", font_size=18).next_to(arrow, UP * 0.5)
+        scores = Matrix(map(lambda x: np.round(x, 2), compute_leverage_scores(X)[:,None])).scale(0.7).next_to(arrow, RIGHT, buff=0.5)
         self.play(FadeIn(matrix))
         self.next_slide()
+
+        # Animate minimal norm reconstruction of the third point using the first two points
+        reconstruction = MathTex(
+            "\\left(0\\right) \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix} + (1)\\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} + (0)\\begin{bmatrix} 1 \\\\ 10 \\end{bmatrix} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} \\implies \\mathbf{c} = \\begin{bmatrix} 0 \\\\ 1 \\\\ 0 \\end{bmatrix} \\text{ and } \\|\\mathbf{c}\\|^2 = 1",
+            font_size=24,
+        ).next_to(scores, RIGHT, buff=0.5)
+        better_reconstruction = MathTex(
+            "\\left(-0.1\\right) \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix} + (0)\\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} + (0.1)\\begin{bmatrix} 1 \\\\ 10 \\end{bmatrix} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix} \\implies \\mathbf{c} = \\begin{bmatrix} -0.1 \\\\ 0 \\\\ 0.1 \\end{bmatrix} \\text{ and } \\|\\mathbf{c}\\|^2 = 0.02",
+            font_size=24,
+        ).next_to(scores, RIGHT, buff=0.5)
+
+        self.play(Write(reconstruction))
+        self.next_slide()
+
+        self.play(Transform(reconstruction, better_reconstruction))
+        self.next_slide()
+
+        self.play(FadeIn(arrow), FadeIn(arrow_label), FadeIn(scores))
+        self.next_slide()
+
+        # Draw example of leverage scores in 1D
 
 
 class BigTheme(MyThreeDSlide):

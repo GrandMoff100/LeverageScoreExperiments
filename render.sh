@@ -15,5 +15,5 @@ manim-slides render -q m -v WARNING presentation.py $slides
 
 # Convert the slides to HTML
 manim-slides \
-    convert --to html --one-file --open \
+    convert --to html --one-file \
     $slides presentation.html
