@@ -390,11 +390,25 @@ class Question1(MySlide, MyMovingCameraScene):
         digits = Group(*[
             ImageMobject((mnist_X[i].numpy().reshape(28, 28) * 255).astype(np.uint8)).scale(5)
             for i in range(16)])
-        digits.arrange_in_grid(rows=4, cols=4, buff=0.1).to_edge(LEFT)
-        self.play(FadeIn(digits))
+        digits.scale(0.8).arrange_in_grid(rows=4, cols=4, buff=0.1).to_edge(LEFT)
+        label_top = Tex("MNIST Dataset", font_size=24).next_to(digits, UP)
+        label_bottom = Tex("""
+        \\begin{itemize}
+        \\item 70,000 handwritten digits ($28 \\times 28$)
+        \\item 10 classes (0-9)
+        \\end{itemize}
+        """, font_size=24).next_to(digits, DOWN)
+
+        arrow1 = MathTex("\\rightarrow").scale(1).next_to(digits, RIGHT, buff=0.5)
+        digit = Group(
+            ImageMobject((mnist_X[0].numpy().reshape(28, 28) * 255).astype(np.uint8)).scale(5),
+            Matrix(mnist_X[0].numpy().reshape(28, 28).round(1), left_bracket="(", right_bracket=")", h_buff=0.8)
+        ).arrange(DOWN).scale(0.2).next_to(arrow1, RIGHT, buff=0.5)
+
+
+        self.play(FadeIn(digits), FadeIn(label_top), FadeIn(label_bottom), FadeIn(arrow1), FadeIn(digit))
         self.next_slide()
 
-        # - Dataset size
         # - High dimensionality (784 features)
         # - What our task with the data is... predicting one-hot labels for the digits, so it's a classification task, not regression.
 
@@ -446,6 +460,24 @@ class Question2(MySlide, MyMovingCameraScene):
             color=RED,
         ).to_edge(UP)
         self.play(Write(title), run_time=1)
+
+        # Create axes
+        axes = Axes(
+            x_range=[-5, 5, 1],
+            y_range=[-1, 25, 5],
+            axis_config={"color": BLUE},
+        ).scale(0.8)
+
+        # Add labels
+        labels = axes.get_axis_labels(x_label="x", y_label="f(x)")
+
+        # Plot function
+        graph = axes.plot(lambda x: x**2, color=YELLOW)
+
+        # Animate
+        self.play(Create(axes), Write(labels))
+        self.play(Create(graph))
+        self.wait()
 
         # Leverage scores aren't that useful for active learning, even though they are somewhat consistent across representations.
         # They don't identify the most important samples to train on because they don't lead to better performance than random sampling.
