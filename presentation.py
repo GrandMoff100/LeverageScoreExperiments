@@ -279,7 +279,7 @@ class LeverageScores(MySlide, MyMovingCameraScene):
 
         # Define Leverage Scores
         definition = MathTex(
-            "\\text{Leverage Score}(x_i) = x_i^T (X^T X)^{-1} x_i = \\|Q^T e_i\\|^2 \\quad \\text{(Classic Definition)}",
+            "\\text{Leverage Score}(\\mathbf{x}_i) = \\mathbf{x}_i^T (X^T X)^{-1} \\mathbf{x}_i = \\|Q^T \\mathbf{e}_i\\|^2 \\quad \\text{(Classic Definition)}",
             font_size=28,
             color=YELLOW,
         ).next_to(description, DOWN)
@@ -292,7 +292,7 @@ class LeverageScores(MySlide, MyMovingCameraScene):
         ).next_to(definition, DOWN, buff=1)
         self.play(Write(alternate_description))
         alternate_definition = MathTex(
-            "\\text{Leverage Score}(x_i) = \\min_{\\mathbf{c}\\in \\mathbb{R}^n} \\|\\mathbf{c}\\|^2 \\text{ such that } X^T \\mathbf{c} = x_i^T \\quad \\text{(Interpretable Definition)}",
+            "\\text{Leverage Score}(\\mathbf{x}_i) = \\min_{\\mathbf{c}\\in \\mathbb{R}^n} \\|\\mathbf{c}\\|^2 \\text{ such that } X^T \\mathbf{c} = \\mathbf{x}_i^T \\quad \\text{(Interpretable Definition)}",
             font_size=28,
             color=YELLOW,
         ).next_to(alternate_description, DOWN)
@@ -327,7 +327,7 @@ class LeverageScores(MySlide, MyMovingCameraScene):
         self.play(Write(reconstruction))
         self.next_slide()
 
-        self.play(Transform(reconstruction, better_reconstruction))
+        self.play(FadeTransform(reconstruction, better_reconstruction))
         self.next_slide()
 
         self.play(FadeIn(arrow), FadeIn(arrow_label), FadeIn(scores))
@@ -388,20 +388,31 @@ class Question1(MySlide, MyMovingCameraScene):
         self.play(Write(title), run_time=1)
 
         digits = Group(*[
-            # ImageMobject(mnist_X[i].numpy().reshape(28, 28) / 255.0,image_mode="L", invert=True).scale(5)
-            ImageMobject(np.random.randint(0, 256, (28, 28), dtype=np.uint8))
+            ImageMobject((mnist_X[i].numpy().reshape(28, 28) * 255).astype(np.uint8)).scale(5)
             for i in range(16)])
-        digits.arrange_in_grid(rows=4, cols=4, buff=0.5).to_edge(LEFT, buff=1)
+        digits.arrange_in_grid(rows=4, cols=4, buff=0.1).to_edge(LEFT)
         self.play(FadeIn(digits))
         self.next_slide()
+
+        # - Dataset size
+        # - High dimensionality (784 features)
+        # - What our task with the data is... predicting one-hot labels for the digits, so it's a classification task, not regression.
 
 
         # Introduce CNN architecture
 
-        # ...
+            # nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.MaxPool2d(2),
+            # nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.MaxPool2d(2),
+            # nn.Flatten(),
+            # nn.Linear(64 * 7 * 7, EMBEDDING_DIMENSION=200),
+            # nn.ReLU(),
+            # nn.Linear(EMBEDDING_DIMENSION=200, 10),
 
-        # How do we embed the data?
-
+        # How do we embed the data? -> We take the output of the penultimate layer of the CNN as our embedding of the data, and compute leverage scores in that embedding space.
 
         # Now we get to representation sensitivity:
         #   how do leverage scores change when we change the representation of our data?
@@ -439,6 +450,8 @@ class Question2(MySlide, MyMovingCameraScene):
         # Leverage scores aren't that useful for active learning, even though they are somewhat consistent across representations.
         # They don't identify the most important samples to train on because they don't lead to better performance than random sampling.
 
+        # Even when we use the leverage scores of the learned embedding, which is a more non-linear representation of the data, we still don't see a significant improvement in performance compared to random sampling.
+
 
 class Conclusion(MySlide, MyMovingCameraScene):
     def construct(self):
@@ -449,6 +462,9 @@ class Conclusion(MySlide, MyMovingCameraScene):
             color=RED,
         ).to_edge(UP)
         self.play(Write(title), run_time=1)
+
+        # Leverage scores are not that useful for training models on MNIST, which suggests 
+        # that they may not be a reliable method for selecting informative samples for machine learning tasks in general.
 
 
 if __name__ == "__main__":
