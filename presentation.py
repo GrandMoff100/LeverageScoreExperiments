@@ -350,41 +350,94 @@ class BigTheme(MyThreeDSlide):
         self.play(Write(title), run_time=1)
         self.next_slide()
 
-        ## Question 1: How sensitive are leverage scores to changes in the data's representation? (neural network pov)
-
-        ## Do they give us important samples to train on?
-
-        ## Question 2: How does this sensitivity impact the performance of active learning algorithms that rely on leverage scores for sample selection?
-
         questions = BulletedList(
-            "How sensitive are leverage scores to changes in the data's representation? (neural networks)",
+            "Are leverage scores consistent across different representations of the data?",
             "Do they give us important samples to train on?",
-            font_size=24,
+            font_size=36,
         ).next_to(title, DOWN)
         for q in questions:
             self.play(Write(q))
             self.next_slide()
 
+
+from torchvision.datasets import MNIST
+
+MNIST_TRAIN = MNIST(
+    root="~/Desktop/AliasingOperatorExperiments/data", train=True, download=True
+)
+MNIST_TEST = MNIST(
+    root="~/Desktop/AliasingOperatorExperiments/data", train=False, download=True
+)
+
+mnist_X = MNIST_TRAIN.data.float().reshape(-1, 1, 28, 28) / 255.0
+mnist_y = MNIST_TRAIN.targets
+test_mnist_X = MNIST_TEST.data.float().reshape(-1, 1, 28, 28) / 255.0
+test_mnist_y = MNIST_TEST.targets
+
+
+
 class Question1(MySlide, MyMovingCameraScene):
     def construct(self):
+        # Introduce MNIST dataset
+
         title = Text(
-            "Question 1",
+            "The data we are working with...",
             font_size=HEADER_FONT_SIZE,
             weight=BOLD,
-            t2c={"Question 1": RED},
         ).to_edge(UP)
         self.play(Write(title), run_time=1)
+
+        digits = Group(*[
+            # ImageMobject(mnist_X[i].numpy().reshape(28, 28) / 255.0,image_mode="L", invert=True).scale(5)
+            ImageMobject(np.random.randint(0, 256, (28, 28), dtype=np.uint8))
+            for i in range(16)])
+        digits.arrange_in_grid(rows=4, cols=4, buff=0.5).to_edge(LEFT, buff=1)
+        self.play(FadeIn(digits))
+        self.next_slide()
+
+
+        # Introduce CNN architecture
+
+        # ...
+
+        # How do we embed the data?
+
+
+        # Now we get to representation sensitivity:
+        #   how do leverage scores change when we change the representation of our data?
+        #   For example, if we use a neural network to learn a non-linear embedding of our data,
+        #   do the leverage scores in that embedding space still identify important samples to train on?
+
+        new_title = Text(
+            "Representation Sensitivity",
+            font_size=HEADER_FONT_SIZE,
+            weight=BOLD,
+            color=RED,
+        ).to_edge(UP)
+        self.play(FadeTransform(title, new_title))
+        self.next_slide()
+
+
+        # The answer is... kind of.
+        # The ones get put at the bottom
+        # The wonky digits get put at the top
+        # But the leverage scores are not perfectly consistent across representations.
+
+        # What does that mean for their usefulness in active learning?
 
 
 class Question2(MySlide, MyMovingCameraScene):
     def construct(self):
         title = Text(
-            "Question 2",
+            "Usefulness for Active Learning",
             font_size=HEADER_FONT_SIZE,
             weight=BOLD,
-            t2c={"Question 2": RED},
+            color=RED,
         ).to_edge(UP)
         self.play(Write(title), run_time=1)
+
+        # Leverage scores aren't that useful for active learning, even though they are somewhat consistent across representations.
+        # They don't identify the most important samples to train on because they don't lead to better performance than random sampling.
 
 
 class Conclusion(MySlide, MyMovingCameraScene):
@@ -393,7 +446,7 @@ class Conclusion(MySlide, MyMovingCameraScene):
             "Conclusion",
             font_size=HEADER_FONT_SIZE,
             weight=BOLD,
-            t2c={"Conclusion": RED},
+            color=RED,
         ).to_edge(UP)
         self.play(Write(title), run_time=1)
 
