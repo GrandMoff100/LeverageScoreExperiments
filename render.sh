@@ -11,7 +11,7 @@ else
 fi
 
 # Render the slides
-manim-slides render -q h -v WARNING presentation.py $slides
+manim-slides render -q k -v WARNING presentation.py $slides
 
 # Convert the slides to HTML
 manim-slides \

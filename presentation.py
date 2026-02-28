@@ -809,7 +809,16 @@ class LeverageScoresForCoreSetSelection(MySlide):
         # don't actually select the most informative samples in comparison to uniformly selecting samples from the dataset,
         # and how this is because leverage scores are only looking at linear independence, which is not the same thing as importance for training a model.
 
-        self.play(FadeIn(title))
+        bullets = BulletedList(
+            "Uniformly random selection beats leverage score selection",
+            "Unique points are not necessarily useful points",
+            font_size=24,
+        ).next_to(title, DOWN, buff=0.5).to_edge(LEFT, buff=1)
+
+        plot1 = ImageMobject("figures/neural_networks_with_leverage_scores.png").scale(0.80).to_edge(DOWN + LEFT, buff=0.5)
+        plot2 = ImageMobject("figures/neural_networks_with_nn_leverage_scores.png").scale(0.80).next_to(plot1, RIGHT, buff=0.25)
+
+        self.play(FadeIn(title), FadeIn(bullets), FadeIn(plot1), FadeIn(plot2))
         self.next_slide()
 
 
