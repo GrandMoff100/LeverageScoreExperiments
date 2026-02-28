@@ -813,7 +813,7 @@ class LeverageScoresForCoreSetSelection(MySlide):
 
         bullets = BulletedList(
             "Uniformly random selection beats leverage score selection",
-            "NN Embedding leverage scores do better than raw",
+            "NN Embedding leverage scores do (marginally) better than raw",
             font_size=28,
         ).next_to(title, DOWN, buff=0.5).to_edge(LEFT, buff=1)
 
@@ -888,7 +888,7 @@ class KeyFindings(MySlide):
         bullets = BulletedList(
             'Leverage scores find unique points (``linearly unique point" $\\neq$ ``useful point")',
             "We need to use other techniques for selecting informative samples",
-            "They are useful for outlier detection",
+            "Useful for outlier detection \\& quantifying learning difficulty",
             font_size=28,
         ).to_edge(LEFT, buff=1)
         self.play(FadeIn(title), FadeIn(bullets))
