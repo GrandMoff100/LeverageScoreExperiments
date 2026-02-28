@@ -831,7 +831,7 @@ class KeyFindings(MySlide):
         ).to_edge(UP + LEFT)
 
         bullets = BulletedList(
-            'Leverage scores find unique points (however ``linearly unique point" $\\neq$ ``useful point")',
+            'Leverage scores find unique points (``linearly unique point" $\\neq$ ``useful point")',
             "We need to use more techniques for selecting informative samples",
             font_size=28,
         ).to_edge(LEFT, buff=1)
