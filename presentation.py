@@ -652,10 +652,12 @@ class AlternativeRepresentations(MySlide):
 
         plot2 = ImageMobject("figures/log_log_plot.png").next_to(plot, DOWN, buff=0.5).scale(0.7).next_to(plot_arrow1, RIGHT, buff=0.25)
         
-
         self.play(
             FadeIn(title),
             FadeIn(bullets),
+        )
+        self.next_slide()
+        self.play(
             FadeIn(plot),
             FadeIn(plot_arrow1),
             FadeIn(plot2),
@@ -811,10 +813,63 @@ class LeverageScoresForCoreSetSelection(MySlide):
 
         bullets = BulletedList(
             "Uniformly random selection beats leverage score selection",
-            "Unique points are not necessarily useful points",
-            font_size=24,
+            "NN Embedding leverage scores do better than raw",
+            font_size=28,
         ).next_to(title, DOWN, buff=0.5).to_edge(LEFT, buff=1)
 
+        import json
+
+        with open("figures/neural_networks_with_leverage_scores.json", "r") as f:
+            data = json.load(f)
+            leverage_accs = data["leverage_accs"]
+            regular_accs = data["regular_accs"]
+            nn_leverage_accs = data["nn_leverage_accs"]
+        epochs = 15
+        colors = ["blue", "orange", "green", "red", "purple", "brown", "pink", "gray"]
+        plt.figure(figsize=(10, 8))
+        for i, k in enumerate(leverage_accs.keys()):
+            plt.plot(
+                range(1, epochs + 1),
+                leverage_accs[k],
+                label=f"k = {k} Leverage Score Subselection",
+                color=colors[i % len(colors)],
+            )
+            plt.plot(
+                range(1, epochs + 1),
+                regular_accs[k],
+                label=f"k = {k} Random Subselection",
+                linestyle="dotted",
+                color=colors[i % len(colors)],
+            )
+        plt.xlabel("Epoch")
+        plt.ylim(0, 1.0)
+        plt.legend()
+        plt.title("Test Accuracy for Raw Leverage Score Subselection")
+        plt.tight_layout()
+        plt.savefig("figures/neural_networks_with_leverage_scores.png")
+
+        plt.figure(figsize=(10, 8))
+        for i, k in enumerate(leverage_accs.keys()):
+            plt.plot(
+                range(1, epochs + 1),
+                nn_leverage_accs[k],
+                label=f"k = {k} NN Leverage Score Subselection",
+                color=colors[i % len(colors)],
+            )
+            plt.plot(
+                range(1, epochs + 1),
+                regular_accs[k],
+                label=f"k = {k} Random Subselection",
+                linestyle="dotted",
+                color=colors[i % len(colors)],
+            )
+        plt.xlabel("Epoch")
+        plt.ylim(0, 1.0)
+        plt.legend()
+        plt.title("Test Accuracy for NN Leverage Score Subselection")
+        plt.tight_layout()
+        plt.savefig("figures/neural_networks_with_nn_leverage_scores.png")
+        
         plot1 = ImageMobject("figures/neural_networks_with_leverage_scores.png").scale(0.80).to_edge(DOWN + LEFT, buff=0.5)
         plot2 = ImageMobject("figures/neural_networks_with_nn_leverage_scores.png").scale(0.80).next_to(plot1, RIGHT, buff=0.25)
 
@@ -832,7 +887,8 @@ class KeyFindings(MySlide):
 
         bullets = BulletedList(
             'Leverage scores find unique points (``linearly unique point" $\\neq$ ``useful point")',
-            "We need to use more techniques for selecting informative samples",
+            "We need to use other techniques for selecting informative samples",
+            "They are useful for outlier detection",
             font_size=28,
         ).to_edge(LEFT, buff=1)
         self.play(FadeIn(title), FadeIn(bullets))

@@ -11,7 +11,7 @@ else
 fi
 
 # Render the slides
-manim-slides render -q h -v WARNING presentation.py $slides
+manim-slides render -q k -v WARNING presentation.py $slides
 
 # 1 minute - l
 # 2 minutes - m
@@ -22,3 +22,5 @@ manim-slides render -q h -v WARNING presentation.py $slides
 manim-slides \
     convert --to html --one-file --open \
     $slides index.html
+
+sed -i 's/<title>Manim Slides<\/title>/<title>Assessing Representation Sensitivity of Leverage Scores<\/title>/g' index.html
